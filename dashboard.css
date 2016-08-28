@@ -32,17 +32,6 @@ body {
 .main {
   padding: 20px;
 }
-@media (min-width: 768px) {
-  .main {
-    padding-right: 40px;
-    padding-left: 40px;
-  }
-}
-.main .page-header {
-  margin-top: 0;
-}
-
-
 #dygraph {
   position: absolute;
   left: 10px;
@@ -66,3 +55,39 @@ footer {
   font-size:8px;
   padding-bottom:5px;
 }
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+@media (max-width: 768px) {
+  #dygraph {
+    top: 60px;
+  }
+}
+.main .page-header {
+  margin-top: 0;
+}
+#timeframe .slider-selection {
+    background: #BABABA;
+}
+#navbar > div {
+  padding-top: 15px;
+  color: #fff;
+}
+
+input[type='range'] {
+    -webkit-appearance: none !important;
+    background:#eee;
+    height:28px;
+    margin-top: 0px;
+}
+input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background:grey;
+    height:26px;
+    width:10px;
+}
+

@@ -15,9 +15,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Bandwidth Checker (refresh in: <span id="cntdown"></span>s)</a>
+          <a class="navbar-brand" href="#">Bandwidth Checker (refresh in: <span id="cntdown">60</span>s)</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
+        <!--<div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             <li><a id="1" class="displayFrame" href="#">Last hour</a></li>
             <li><a id="3" class="displayFrame" href="#">Last 3 hours</a></li>
@@ -27,11 +27,20 @@
             <li><a id="32" class="displayFrame" href="#">Last 32 hours</a></li>
             <li><a id="48" class="displayFrame" href="#">Last 48 hours</a></li>
           </ul>
+        </div>-->
+        <div id="navbar" class="navbar-collapse collapse">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-addon">Hours</div>
+              <input type="range" min="0" max="72" value="7" id="timeframe"/>
+              <div class="input-group-addon" id="rangeValue">7</div>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
     <div class="container-fluid">
-      <h1 class="page-header">Speedtest history</h1>
+      <h1 class="page-header hidden-xs hidden-sm">Speedtest history</h1>
       <div id="dygraph"></div>
       <footer>
         Powered by <a href="http://dygraphs.com/">Dygraphs</a> &bull;
@@ -40,10 +49,15 @@
       </footer>
     </div>
     <script type="text/javascript" src="/jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/dygraph-combined.js"></script>
     <script type="text/javascript" src="/moment-with-locales.min.js"></script>
     <script type="text/javascript">
       var MAX_BW = 300;
+      var legend_display = 'always';
+      if ($(window).width() < 768) {
+        legend_display = 'onmouseover';
+      }
 
       function formatDate(d, short=false) {
         if (short) {
@@ -62,7 +76,7 @@
             "Download": { axis: 'y2' },
             "Latency": { axis: 'y1' }
           },
-          legend: "always",
+          legend: legend_display,
           labelsSeparateLines: true,
           connectSeparatedPoints: true,
           fillGraph: true,
@@ -93,10 +107,11 @@
           }
         }
       );
-      $('.displayFrame').click(function(e) {
+      $('#timeframe').change(function(e) {
+        $('#rangeValue').text($(this).val());
         g.updateOptions({
           dateWindow: [
-            moment().subtract($(this).attr('id'), 'hours').unix(),
+            moment().subtract($(this).val(), 'hours').unix(),
             moment().unix()
           ]
         });
