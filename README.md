@@ -2,6 +2,8 @@
 
 Get an overview of your bandwidth speed on a given time span.
 
+![Alt text](/dashboard-example.jpg?raw=true "Screenshot")
+
 ## Required libraries
   * [dygraphs](http://dygraphs.com/)
   * [jquery](http://jquery.com/)
