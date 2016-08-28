@@ -1,0 +1,68 @@
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+}
+
+
+/*
+ * Global add-ons
+ */
+
+.sub-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/*
+ * Top navigation
+ * Hide default border to remove 1px line.
+ */
+.navbar-fixed-top {
+  border: 0;
+}
+
+/*
+ * Main content
+ */
+
+.main {
+  padding: 20px;
+}
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+.main .page-header {
+  margin-top: 0;
+}
+
+
+#dygraph {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 150px;
+  bottom: 20px;
+}
+.dygraph-legend {
+  background-color: rgba(200, 200, 255, 0.75) !important;
+  padding: 4px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  box-shadow: 4px 4px 4px #888;
+  pointer-events: none;
+}
+footer {
+  bottom:0px;
+  position:absolute;
+  width:99%;
+  text-align:center;
+  font-size:8px;
+  padding-bottom:5px;
+}

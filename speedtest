@@ -1,0 +1,8 @@
+#!/bin/bash
+wget -q --spider http://google.com
+if [ $? -eq 0 ]; then
+  ./speedtest-cli/speedtest_cli.py --csv
+else
+  echo -n $(date +%s)
+  echo ',0.00,0.00,0.00'
+fi

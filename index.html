@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/dashboard.css" rel="stylesheet">
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Bandwidth Checker (refresh in: <span id="cntdown"></span>s)</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a id="1" class="displayFrame" href="#">Last hour</a></li>
+            <li><a id="3" class="displayFrame" href="#">Last 3 hours</a></li>
+            <li><a id="6" class="displayFrame" href="#">Last 6 hours</a></li>
+            <li><a id="12" class="displayFrame" href="#">Last 12 hours</a></li>
+            <li><a id="24" class="displayFrame" href="#">Last 24 hours</a></li>
+            <li><a id="32" class="displayFrame" href="#">Last 32 hours</a></li>
+            <li><a id="48" class="displayFrame" href="#">Last 48 hours</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <h1 class="page-header">Speedtest history</h1>
+      <div id="dygraph"></div>
+      <footer>
+        Powered by <a href="http://dygraphs.com/">Dygraphs</a> &bull;
+        Stat source: <a href="https://github.com/cjeanneret/speedtest-cli">modified speedtest-cli</a> &bull;
+        Get stats <a href="/log.csv">CSV</a>
+      </footer>
+    </div>
+    <script type="text/javascript" src="/jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="/dygraph-combined.js"></script>
+    <script type="text/javascript" src="/moment-with-locales.min.js"></script>
+    <script type="text/javascript">
+      var MAX_BW = 300;
+
+      function formatDate(d, short=false) {
+        if (short) {
+          return moment.unix(d).format('H:mm');
+        } else {
+          return moment.unix(d).format('D MMM YYYY - H:mm:ss');
+        }
+      }
+      var g = new Dygraph(
+	document.getElementById("dygraph"),
+	"/log.csv",
+        { 
+          labels: [ "Date", "Latency", "Upload", "Download" ],
+          series: {
+            "Upload": { axis: 'y2' },
+            "Download": { axis: 'y2' },
+            "Latency": { axis: 'y1' }
+          },
+          legend: "always",
+          labelsSeparateLines: true,
+          connectSeparatedPoints: true,
+          fillGraph: true,
+          colors: [
+            "red",
+            "black",
+            "green",
+          ],
+          ylabel: "Latency (ms)",
+          y2label: "Bandwidth (Mbit/s)",
+          axes: {
+            x: {
+              valueFormatter: function(timestamp) {
+                return formatDate(timestamp);
+              },
+              axisLabelFormatter: function(timestamp) {
+                return formatDate(timestamp, true);
+              }
+            },
+            y: {
+              valueRange: [0, MAX_BW],
+            },
+            y2: {
+              independentTicks: true,
+              valueRange: [0, MAX_BW],
+              labelsKMB: true,
+            }
+          }
+        }
+      );
+      $('.displayFrame').click(function(e) {
+        g.updateOptions({
+          dateWindow: [
+            moment().subtract($(this).attr('id'), 'hours').unix(),
+            moment().unix()
+          ]
+        });
+        e.preventDefault()
+      });
+      var timer = 1000*60*1;
+      var cntdown = timer;
+
+      function updateGraph() {
+        timeframe = g.getOption('dateWindow');
+        if (timeframe) {
+          g.updateOptions({
+            file: '/log.csv',
+            dateWindow: [
+              timeframe[0],
+              moment().unix()
+              ]
+          });
+        } else {
+          g.updateOptions({
+            file: '/log.csv'
+          });
+        }
+      }
+
+      function count_down() {
+        if (cntdown <= 0) {
+          cntdown = timer;
+        }
+        cntdown = cntdown - 1000;
+        $('#cntdown').text(cntdown/1000);
+      }
+      setInterval(function() { updateGraph() }, timer);
+      setInterval(function() { count_down() }, 1000);
+    </script>
+  </body>
+</html>
