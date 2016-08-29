@@ -19,6 +19,8 @@ You might need to edit the speedtest-cli git clone path in order to make it work
 You might as well want to edit the "wget" command in order to check with another website
 than google.com. Just ensure it's a reliable target.
 
+Oh and, by the way: it works on mobile too (at least Android + Firefox) :).
+
 ### Dygraphs configuration
 You might want to put the maximal bandwidth you should have in the index.html file - find
 MAX_BW and set it to the maximum you should get according to your contract (in Mbit/s).
