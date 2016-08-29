@@ -4,6 +4,10 @@ Get an overview of your bandwidth speed on a given time span.
 
 ![Alt text](/dashboard-example.jpg?raw=true "Screenshot")
 
+![Alt text](/mobile-full.jpg?raw=true "Mobile view")
+
+![Alt text](/mobile-menu.jpg?raw=true "Mobile with menu")
+
 ## Required libraries
   * [dygraphs](http://dygraphs.com/)
   * [jquery](http://jquery.com/)
