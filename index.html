@@ -15,19 +15,8 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Bandwidth Checker (refresh in: <span id="cntdown">60</span>s)</a>
+          <a class="navbar-brand" href="#">Speedtest History (refresh in: <span id="cntdown">60</span>s)</a>
         </div>
-        <!--<div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a id="1" class="displayFrame" href="#">Last hour</a></li>
-            <li><a id="3" class="displayFrame" href="#">Last 3 hours</a></li>
-            <li><a id="6" class="displayFrame" href="#">Last 6 hours</a></li>
-            <li><a id="12" class="displayFrame" href="#">Last 12 hours</a></li>
-            <li><a id="24" class="displayFrame" href="#">Last 24 hours</a></li>
-            <li><a id="32" class="displayFrame" href="#">Last 32 hours</a></li>
-            <li><a id="48" class="displayFrame" href="#">Last 48 hours</a></li>
-          </ul>
-        </div>-->
         <div id="navbar" class="navbar-collapse collapse">
           <div class="form-group">
             <div class="input-group">
@@ -40,7 +29,6 @@
       </div>
     </nav>
     <div class="container-fluid">
-      <h1 class="page-header hidden-xs hidden-sm">Speedtest history</h1>
       <div id="dygraph"></div>
       <footer>
         Powered by <a href="http://dygraphs.com/">Dygraphs</a> &bull;
@@ -81,8 +69,8 @@
           connectSeparatedPoints: true,
           fillGraph: true,
           colors: [
-            "red",
-            "black",
+            "purple",
+            "blue",
             "green",
           ],
           ylabel: "Bandwidth (Mbit/s)",
