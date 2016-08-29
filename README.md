@@ -6,7 +6,7 @@ Get an overview of your bandwidth speed on a given time span.
 
 ![Alt text](/mobile-full.jpg?raw=true "Mobile view")
 
-![Alt text](/mobile-menu.jpg?raw=true "Mobile with menu")
+![Alt text](/mobile-info.jpg?raw=true "Mobile with information")
 
 ## Required libraries
   * [dygraphs](http://dygraphs.com/)
