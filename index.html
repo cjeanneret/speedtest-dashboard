@@ -18,13 +18,12 @@
           <a class="navbar-brand" href="#">Speedtest History (refresh in: <span id="cntdown">60</span>s)</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-          <div class="form-group">
-            <div class="input-group">
-              <div class="input-group-addon">Hours</div>
-              <input type="range" min="0" max="72" value="7" id="timeframe"/>
-              <div class="input-group-addon" id="rangeValue">7</div>
-            </div>
-          </div>
+          <ul class="nav navbar-nav">
+            <li class="navbar-text">Average:</li>
+            <li class="navbar-text" name="down_avg"></li>
+            <li class="navbar-text" name="up_avg"></li>
+            <li class="navbar-text" name="lat_avg"></li>
+          </ul>
         </div>
       </div>
     </nav>
@@ -54,6 +53,20 @@
           return moment.unix(d).format('D MMM YYYY - H:mm:ss');
         }
       }
+      function averages() {
+        avg_up = 0;
+        avg_down = 0;
+        avg_lat = 0;
+        for (var i=0; i<g.numRows(); i++) {
+            avg_lat += g.getValue(i,1);
+            avg_up += g.getValue(i,2);
+            avg_down += g.getValue(i,3);
+        }
+        $('li[name="down_avg"]').text('Download: '+(avg_down/g.numRows()).toFixed(2) +'Mbit/s');
+        $('li[name="up_avg"]').text('Upload: '+    (avg_up/g.numRows()).toFixed(2)   +'Mbit/s');
+        $('li[name="lat_avg"]').text('Latency: '+  (avg_lat/g.numRows()).toFixed(2)  +'ms');
+      }
+
       var g = new Dygraph(
 	document.getElementById("dygraph"),
 	"/log.csv",
@@ -76,8 +89,8 @@
           ylabel: "Bandwidth (Mbit/s)",
           y2label: "Latency (ms)",
           dateWindow: [
-            moment().subtract(7, 'hours').unix(),
-            moment().add(10, 'minutes').unix()
+            moment().subtract(10, 'hours').unix(),
+            moment().unix()
           ],
           axes: {
             x: {
@@ -111,36 +124,24 @@
               canvas.closePath();
             }
           },
+          showRangeSelector: true,
         }
       );
-      $('#timeframe').change(function(e) {
-        $('#rangeValue').text($(this).val());
-        g.updateOptions({
-          dateWindow: [
-            moment().subtract($(this).val(), 'hours').unix(),
-            moment().add(10, 'minutes').unix()
-          ]
-        });
-        e.preventDefault()
-      });
+
+      g.ready(averages);
       var timer = 1000*60*1;
       var cntdown = timer;
 
       function updateGraph() {
-        timeframe = g.getOption('dateWindow');
-        if (timeframe) {
-          g.updateOptions({
-            file: '/log.csv',
-            dateWindow: [
-              timeframe[0],
-              moment().unix()
-              ]
-          });
-        } else {
-          g.updateOptions({
-            file: '/log.csv'
-          });
-        }
+        x = g.xAxisRange()[0];
+        g.updateOptions({
+          file: '/log.csv',
+          dateWindow: [
+            x,
+            moment().unix()
+            ]
+        });
+        g.ready(averages);
       }
 
       function count_down() {
