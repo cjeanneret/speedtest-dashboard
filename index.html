@@ -75,6 +75,10 @@
           ],
           ylabel: "Bandwidth (Mbit/s)",
           y2label: "Latency (ms)",
+          dateWindow: [
+            moment().subtract(7, 'hours').unix(),
+            moment().add(10, 'minutes').unix()
+          ],
           axes: {
             x: {
               valueFormatter: function(timestamp) {
@@ -114,7 +118,7 @@
         g.updateOptions({
           dateWindow: [
             moment().subtract($(this).val(), 'hours').unix(),
-            moment().unix()
+            moment().add(10, 'minutes').unix()
           ]
         });
         e.preventDefault()
