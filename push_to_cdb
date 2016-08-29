@@ -1,0 +1,11 @@
+#!/bin/bash
+
+curl -XPUT http://127.0.0.1:5984/bandwidth
+
+for o in $(cat log.csv); do
+  timestamp=$(echo $o | cut -d ',' -f 1)
+  latency=$(echo $o | cut -d ',' -f 2)
+  upload=$(echo $o | cut -d ',' -f 3)
+  download=$(echo $o | cut -d ',' -f 4)
+  curl -s -o /dev/null -X PUT http://127.0.0.1:5984/bandwidth/"${timestamp}" -d '{"latency": "'${latency}'", "upload": "'${upload}'", "download": "'${download}'"}'
+done

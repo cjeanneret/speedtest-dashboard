@@ -1,8 +1,23 @@
 #!/bin/bash
+
+SPEEDTEST_CLI_PATH=/home/cedric/speedtest-cli
+USE_CDB=1
+
+
 wget -q --spider http://google.com
 if [ $? -eq 0 ]; then
-  ./speedtest-cli/speedtest_cli.py --csv
+  o=$(${SPEEDTEST_CLI_PATH}/speedtest_cli.py --csv)
 else
-  echo -n $(date +%s)
-  echo ',0.00,0.00,0.00'
+  o="$(date +%s),0.00,0.00,0.00"
+fi
+
+timestamp=$(echo $o | cut -d ',' -f 1)
+latency=$(echo $o | cut -d ',' -f 2)
+upload=$(echo $o | cut -d ',' -f 3)
+download=$(echo $o | cut -d ',' -f 4)
+
+if [ $USE_CDB == 1 ]; then
+  echo curl -s -o /dev/null -X PUT http://127.0.0.1:5984/bandwidth/"${timestamp}" -d '{"latency": "'${latency}'", "upload": "'${upload}'", "download": "'${download}'"}'
+else
+  echo $o
 fi

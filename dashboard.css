@@ -32,6 +32,7 @@ body {
   right: 10px;
   top: 80px;
   bottom: 20px;
+  text-align:center;
 }
 .dygraph-legend {
   background-color: rgba(200, 200, 255, 0.75) !important;
@@ -65,7 +66,7 @@ footer {
   margin-top: 0;
 }
 #timeframe .slider-selection {
-    background: #BABABA;
+  background: #BABABA;
 }
 #navbar > div {
   padding-top: 15px;
@@ -73,16 +74,30 @@ footer {
 }
 
 input[type='range'] {
-    -webkit-appearance: none !important;
-    background:#eee;
-    height:28px;
-    margin-top: 0px;
+  -webkit-appearance: none !important;
+  background:#eee;
+  height:28px;
+  margin-top: 0px;
 }
 input[type='range']::-webkit-slider-thumb {
-    -webkit-appearance: none !important;
-    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-    background:grey;
-    height:26px;
-    width:10px;
+  -webkit-appearance: none !important;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background:grey;
+  height:26px;
+  width:10px;
+}
+.glyphicon-refresh-animate {
+  -animation: spin .7s infinite linear;
+  -webkit-animation: spin2 .7s infinite linear;
+  font-size:30px;
 }
 
+@-webkit-keyframes spin2 {
+  from { -webkit-transform: rotate(0deg);}
+  to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+  from { transform: scale(1) rotate(0deg);}
+  to { transform: scale(1) rotate(360deg);}
+}

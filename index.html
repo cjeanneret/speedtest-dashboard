@@ -28,7 +28,9 @@
       </div>
     </nav>
     <div class="container-fluid">
-      <div id="dygraph"></div>
+      <div id="dygraph">
+        <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...
+      </div>
       <footer>
         Powered by <a href="http://dygraphs.com/">Dygraphs</a> &bull;
         Stat source: <a href="https://github.com/cjeanneret/speedtest-cli">modified speedtest-cli</a> &bull;
@@ -37,10 +39,67 @@
     </div>
     <script type="text/javascript" src="/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/_utils/script/json2.js"></script>
+    <script type="text/javascript" src="/_utils/script/sha1.js"></script>
+    <script type="text/javascript" src="/_utils/script/jquery.couch.js"></script>
     <script type="text/javascript" src="/dygraph-combined.js"></script>
     <script type="text/javascript" src="/moment-with-locales.min.js"></script>
     <script type="text/javascript">
-      var MAX_BW = 250;
+      var MAX_BW = 250; // max speed you can have
+      var COUCHDB = false; // are you using couchdb?
+
+
+
+
+      // DO NOT EDIT BELLOW
+      var dygraphs_data;
+      var g;
+      var timer = 1000*60*1;
+      var cntdown = timer;
+      var ofset;
+
+      if (COUCHDB) {
+        var data_checker;
+        dygraphs_data = [];
+
+        function getDoc(id) {
+          $.couch.db('bandwidth').openDoc(id, {
+            success: function(data) {
+              dygraphs_data.push([
+                parseFloat(data['_id']),
+                parseFloat(data['latency']),
+                parseFloat(data['upload']),
+                parseFloat(data['download'])
+              ]);
+            }
+          });
+        }
+
+        $.couch.db("bandwidth").allDocs({
+          success: function(data) {
+            console.log('Total size: '+data['rows'].length);
+            offset = data['rows'].length;
+            docs = [];
+            $.each(data['rows'], function(index, obj) {
+              docs.push(obj['id']);
+            });
+            $.each(docs.sort(), function(index, id) {
+              getDoc(id);
+            });
+          }
+        });
+        data_checker = setInterval(function() {
+          if (dygraphs_data.length == offset) {
+            clearInterval(data_checker);
+            draw_graph();
+          } else {
+            console.log('Waiting for dataset');
+          }
+        }, 500);
+      } else { // just download the log.csv file
+        dygraphs_data = '/log.csv';
+        draw_graph();
+      }
       var legend_display = 'always';
       if ($(window).width() < 768) {
         legend_display = 'onmouseover';
@@ -58,89 +117,126 @@
         avg_down = 0;
         avg_lat = 0;
         for (var i=0; i<g.numRows(); i++) {
-            avg_lat += g.getValue(i,1);
-            avg_up += g.getValue(i,2);
-            avg_down += g.getValue(i,3);
+          avg_lat  += parseInt(g.getValue(i,1));
+          avg_up   += parseInt(g.getValue(i,2));
+          avg_down += parseInt(g.getValue(i,3));
         }
         $('li[name="down_avg"]').text('Download: '+(avg_down/g.numRows()).toFixed(2) +'Mbit/s');
         $('li[name="up_avg"]').text('Upload: '+    (avg_up/g.numRows()).toFixed(2)   +'Mbit/s');
         $('li[name="lat_avg"]').text('Latency: '+  (avg_lat/g.numRows()).toFixed(2)  +'ms');
       }
 
-      var g = new Dygraph(
-	document.getElementById("dygraph"),
-	"/log.csv",
-        { 
-          labels: [ "Date", "Latency", "Upload", "Download" ],
-          series: {
-            "Upload": { axis: 'y1' },
-            "Download": { axis: 'y1' },
-            "Latency": { axis: 'y2' }
-          },
-          legend: legend_display,
-          labelsSeparateLines: true,
-          connectSeparatedPoints: true,
-          fillGraph: true,
-          colors: [
-            "purple",
-            "blue",
-            "green",
-          ],
-          ylabel: "Bandwidth (Mbit/s)",
-          y2label: "Latency (ms)",
-          dateWindow: [
-            moment().subtract(10, 'hours').unix(),
-            moment().unix()
-          ],
-          axes: {
-            x: {
-              valueFormatter: function(timestamp) {
-                return formatDate(timestamp);
-              },
-              axisLabelFormatter: function(timestamp) {
-                return formatDate(timestamp, true);
-              }
-            },
-            y: {
-              valueRange: [0, MAX_BW+50],
-            },
-            y2: {
-              independentTicks: true,
-              valueRange: [0, MAX_BW+50],
-              labelsKMB: true,
-            }
-          },
-          underlayCallback: function(canvas, area, g) {
-            canvas.strokeStyle = 'red';
-            var lines = [(MAX_BW*0.8),MAX_BW];
-            var range = g.xAxisRange();
-            for (var idy = 0; idy < lines.length; idy++) {
-              var canvasy = g.toDomYCoord(lines[idy]);
-              canvas.beginPath();
-              canvas.moveTo(g.toDomXCoord(range[0]), canvasy);
-              canvas.lineTo(g.toDomXCoord(range[1]), canvasy);
-              canvas.lineWidth = 2;
-              canvas.stroke();
-              canvas.closePath();
-            }
-          },
-          showRangeSelector: true,
-        }
-      );
+      function draw_graph() {
+        g = new Dygraph(
+	  document.getElementById("dygraph"),
+	  dygraphs_data,
+	  { 
+	    labels: [ "Date", "Latency", "Upload", "Download" ],
+	    series: {
+	      "Upload": { axis: 'y1'},
+	      "Download": { axis: 'y1', showInRangeSelector: true },
+	      "Latency": { axis: 'y2' }
+	    },
+	    legend: legend_display,
+	    labelsSeparateLines: true,
+	    connectSeparatedPoints: true,
+	    fillGraph: true,
+	    colors: [
+	      "purple",
+	      "blue",
+	      "green",
+	    ],
+	    ylabel: "Bandwidth (Mbit/s)",
+	    y2label: "Latency (ms)",
+	    axes: {
+	      x: {
+		valueFormatter: function(timestamp) {
+		  return formatDate(timestamp);
+		},
+		axisLabelFormatter: function(timestamp) {
+		  return formatDate(timestamp, true);
+		}
+	      },
+	      y: {
+		valueRange: [0, MAX_BW+50],
+	      },
+	      y2: {
+		independentTicks: true,
+		valueRange: [0, MAX_BW+50],
+		labelsKMB: true,
+	      }
+	    },
+	    underlayCallback: function(canvas, area, g) {
+	      canvas.strokeStyle = 'red';
+	      var lines = [(MAX_BW*0.8),MAX_BW];
+	      var range = g.xAxisRange();
+	      for (var idy = 0; idy < lines.length; idy++) {
+		var canvasy = g.toDomYCoord(lines[idy]);
+		canvas.beginPath();
+		canvas.moveTo(g.toDomXCoord(range[0]), canvasy);
+		canvas.lineTo(g.toDomXCoord(range[1]), canvasy);
+		canvas.lineWidth = 2;
+		canvas.stroke();
+		canvas.closePath();
+	      }
+	    },
+	    showRangeSelector: true,
+            rangeSelectorPlotFillColor: 'green',
+	  }
+	);
+        g.ready(function() {
+          averages();
+          setInterval(function() { updateGraph() }, timer);
+          setInterval(function() { count_down() }, 1000);
+        });
+      }
 
-      g.ready(averages);
-      var timer = 1000*60*1;
-      var cntdown = timer;
 
       function updateGraph() {
         x = g.xAxisRange()[0];
-        g.updateOptions({
-          file: '/log.csv',
-          dateWindow: [
-            x,
-            moment().unix()
-            ]
-        });
+        if (COUCHDB) {
+          // TODO: get new documents, inject them in dygraphs_data.
+          $.couch.db('bandwidth').allDocs({
+            skip: offset,
+            success: function(data) {
+              docs = [];
+              $.each(data['rows'], function(index, obj) {
+                docs.push(obj['id']);
+              });
+              $.each(docs.sort(), function(index, id) {
+                getDoc(id);
+              });
+
+              if (data['rows'].length != 0) {
+                data_checker = setInterval(function() {
+                  if (dygraphs_data.length == (offset + data['rows'].length)) {
+                    clearInterval(data_checker);
+                    g.updateOptions({
+                      file: dygraphs_data,
+                      dateWindow: [
+                        x,
+                        moment().unix()
+                        ]
+                    });
+                    offset += data['rows'].length;
+                  } else {
+                    console.log('Waiting for dataset');
+                  }
+                }, 500);
+              } else {
+                console.log('No new data for now');
+              }
+            }
+          });
+        } else {
+          g.updateOptions({
+            file: dygraphs_data,
+            dateWindow: [
+              x,
+              moment().unix()
+              ]
+          });
+        }
         g.ready(averages);
       }
 
@@ -151,8 +247,6 @@
         cntdown = cntdown - 1000;
         $('#cntdown').text(cntdown/1000);
       }
-      setInterval(function() { updateGraph() }, timer);
-      setInterval(function() { count_down() }, 1000);
     </script>
   </body>
 </html>
