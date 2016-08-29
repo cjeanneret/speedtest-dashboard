@@ -53,7 +53,7 @@
     <script type="text/javascript" src="/dygraph-combined.js"></script>
     <script type="text/javascript" src="/moment-with-locales.min.js"></script>
     <script type="text/javascript">
-      var MAX_BW = 300;
+      var MAX_BW = 250;
       var legend_display = 'always';
       if ($(window).width() < 768) {
         legend_display = 'onmouseover';
@@ -72,9 +72,9 @@
         { 
           labels: [ "Date", "Latency", "Upload", "Download" ],
           series: {
-            "Upload": { axis: 'y2' },
-            "Download": { axis: 'y2' },
-            "Latency": { axis: 'y1' }
+            "Upload": { axis: 'y1' },
+            "Download": { axis: 'y1' },
+            "Latency": { axis: 'y2' }
           },
           legend: legend_display,
           labelsSeparateLines: true,
@@ -85,8 +85,8 @@
             "black",
             "green",
           ],
-          ylabel: "Latency (ms)",
-          y2label: "Bandwidth (Mbit/s)",
+          ylabel: "Bandwidth (Mbit/s)",
+          y2label: "Latency (ms)",
           axes: {
             x: {
               valueFormatter: function(timestamp) {
@@ -97,14 +97,28 @@
               }
             },
             y: {
-              valueRange: [0, MAX_BW],
+              valueRange: [0, MAX_BW+50],
             },
             y2: {
               independentTicks: true,
-              valueRange: [0, MAX_BW],
+              valueRange: [0, MAX_BW+50],
               labelsKMB: true,
             }
-          }
+          },
+          underlayCallback: function(canvas, area, g) {
+            canvas.strokeStyle = 'red';
+            var lines = [(MAX_BW*0.8),MAX_BW];
+            var range = g.xAxisRange();
+            for (var idy = 0; idy < lines.length; idy++) {
+              var canvasy = g.toDomYCoord(lines[idy]);
+              canvas.beginPath();
+              canvas.moveTo(g.toDomXCoord(range[0]), canvasy);
+              canvas.lineTo(g.toDomXCoord(range[1]), canvasy);
+              canvas.lineWidth = 2;
+              canvas.stroke();
+              canvas.closePath();
+            }
+          },
         }
       );
       $('#timeframe').change(function(e) {

@@ -19,6 +19,19 @@ You might need to edit the speedtest-cli git clone path in order to make it work
 You might as well want to edit the "wget" command in order to check with another website
 than google.com. Just ensure it's a reliable target.
 
+### Dygraphs configuration
+You might want to put the maximal bandwidth you should have in the index.html file - find
+MAX_BW and set it to the maximum you should get according to your contract (in Mbit/s).
+
+That will be used for two things:
+  * graphic vertical scale
+  * put two horizontal lines, upper for contractual bandwidth, lower for the "accepted difference"
+  which is set to 20%.
+
+Meaning: if your bandwidth is under the lower red line, you might start hitting your provider for support and
+maybe even ask for some refund or stuff like that.
+
+
 ### Cronjob
 
 The cron job must looks like that:
