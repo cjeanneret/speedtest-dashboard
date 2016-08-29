@@ -8,6 +8,7 @@ Get an overview of your bandwidth speed on a given time span.
   * [dygraphs](http://dygraphs.com/)
   * [jquery](http://jquery.com/)
   * [bootstrap 3.x](http://getbootstrap.com/)
+  * [momentjs](http://momentjs.com/)
   * [modified speedtest-cli](https://github.com/cjeanneret/speedtest-cli)
 
 ## How does it work?
