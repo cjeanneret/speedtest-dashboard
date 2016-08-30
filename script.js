@@ -189,16 +189,20 @@ function updateGraph() {
       success: function(data) {
         docs = [];
         $.each(data['rows'], function(index, obj) {
-          docs.push(parseFloat(obj['id']));
-        });
-        $.each(docs.sort(), function(index, id) {
-          getDoc(id);
+          getDoc(obj['id']);
         });
 
         if (data['rows'].length != 0) {
           data_checker = setInterval(function() {
             if (dygraphs_data.length == (one_day + data['rows'].length)) {
               clearInterval(data_checker);
+              dygraphs_data.sort(function(a, b) {
+                var keyA = a[0];
+                var keyB = b[0];
+                if(keyA < keyB) return -1;
+                if(keyA > keyB) return 1;
+                return 0;
+              });
               g.updateOptions({
                 file: dygraphs_data,
                 dateWindow: [
