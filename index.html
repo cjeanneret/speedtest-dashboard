@@ -63,6 +63,7 @@
     <script type="text/javascript">
       var MAX_BW = 250; // max speed you can have
       var COUCHDB = true; // are you using couchdb?
+      var DEFAULT_SPAN = 12; // take the X last hours
 
 
 
@@ -79,6 +80,9 @@
       if (COUCHDB) {
         var data_checker;
         dygraphs_data = [];
+
+        $('#timemachine').val(DEFAULT_SPAN);
+        $('#range-value').text(DEFAULT_SPAN);
 
         function getDoc(id) {
           $.couch.db('bandwidth').openDoc(String(id), {
