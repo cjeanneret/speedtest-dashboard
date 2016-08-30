@@ -28,7 +28,7 @@ body {
 }
 #dygraph {
   position: absolute;
-  left: 10px;
+  left: 50px;
   right: 10px;
   top: 80px;
   bottom: 20px;
@@ -73,30 +73,43 @@ footer {
   color: #fff;
 }
 
-input[type='range'] {
-  -webkit-appearance: none !important;
-  background:#eee;
-  height:28px;
-  margin-top: 0px;
+.progress {
+  height: 5px;
 }
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none !important;
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background:grey;
-  height:26px;
-  width:10px;
+
+input[type=range][orient=vertical] {
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* WebKit */
+  width: 8px;
+  height: 50%;
+  padding: 0 5px;
+}
+
+#time-slider {
+  position: absolute;
+  display:none;
+  height: 100%;
+  z-index: 10;
+  top:80px;
+  left:10px;
+  text-align:center;
+}
+
+#loading {
+  display:block;
+  position:absolute;
+  top:45%;
+  left:45%;
 }
 .glyphicon-refresh-animate {
   -animation: spin .7s infinite linear;
   -webkit-animation: spin2 .7s infinite linear;
-  font-size:30px;
+  font-size:50px;
 }
-
 @-webkit-keyframes spin2 {
   from { -webkit-transform: rotate(0deg);}
   to { -webkit-transform: rotate(360deg);}
 }
-
 @keyframes spin {
   from { transform: scale(1) rotate(0deg);}
   to { transform: scale(1) rotate(360deg);}

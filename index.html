@@ -29,11 +29,23 @@
       </div>
     </nav>
     <div class="container-fluid">
+      <div id="time-slider">
+        <span id="range-value">24</span>h
+        <input id="timemachine" type="range" min="0" value="24" orient="vertical" />
+      </div>
+      <span id="loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+      <div class="progress" id="progress">
+        <div 
+          class="progress-bar progress-bar-success"
+          id="progress-bar"
+          role="progressbar"
+          aria-valuenow="0"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          style="width:0%">
+        </div>
+      </div>
       <div id="dygraph">
-        <!--<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...-->
-	<div class="progress">
-	  <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
-	</div>
       </div>
       <footer>
         Powered by <a href="http://dygraphs.com/">Dygraphs</a> &bull;
@@ -62,6 +74,7 @@
       var cntdown = timer;
       var offset = -1;
       var one_day = -1;
+      var update_countdown;
 
       if (COUCHDB) {
         var data_checker;
@@ -83,33 +96,56 @@
           });
         }
 
-        $.couch.db("bandwidth").allDocs({
-          success: function(data) {
-            offset = data['rows'].length;
-            docs = [];
-            $.each(data['rows'], function(index, obj) {
-              timestamp = parseFloat(obj['id']);
-              if (moment(timestamp).isBetween(moment().subtract(24, 'hours').unix(), moment().unix(), null, '[]')) {
-                docs.push(parseFloat(obj['id']));
-              }
-            });
-            one_day = docs.length;
-            $.each(docs.sort(), function(index, id) {
-              getDoc(id);
-            });
-          }
+        $('#timemachine').mousemove(function() {
+          val = $('#timemachine').val();
+          $('#range-value').text(val);
         });
-        data_checker = setInterval(function() {
-          if (dygraphs_data.length == one_day) {
-            clearInterval(data_checker);
-            draw_graph();
-          } else {
-            percent = Math.round(dygraphs_data.length*100/one_day);
-            $('#progress-bar').attr('aria-valuenow', percent);
-            $('#progress-bar').css('width', percent+'%');
-            $('#progress-bar').text(percent+'%');
-          }
-        }, 500);
+        $('#timemachine').change(function() {
+          dygraphs_data = [];
+          $('#timemachine').prop('disabled', true);
+          clearInterval(update_countdown);
+          $('#progress-bar').attr('aria-valuenow', 0);
+          $('#progress-bar').css('width', '0%');
+          $('#progress').show();
+          $('#loading').show();
+          get_data();
+        });
+
+        function get_data() {
+          $.couch.db("bandwidth").allDocs({
+            success: function(data) {
+              offset = data['rows'].length;
+              docs = [];
+              $.each(data['rows'], function(index, obj) {
+                timestamp = parseFloat(obj['id']);
+                if (moment(timestamp).isBetween(moment().subtract($('#timemachine').val(), 'hours').unix(), moment().unix(), null, '[]')) {
+                  docs.push(parseFloat(obj['id']));
+                }
+              });
+              one_day = docs.length;
+              $.each(docs.sort(), function(index, id) {
+                getDoc(id);
+              });
+            }
+          });
+          data_checker = setInterval(function() {
+            if (dygraphs_data.length == one_day) {
+              clearInterval(data_checker);
+              draw_graph();
+              $('#time-slider').show();
+              $('#progress').hide();
+              $('#timemachine').prop('disabled', false);
+              $('#loading').hide();
+            } else {
+              percent = Math.round(dygraphs_data.length*100/one_day);
+              $('#progress-bar').attr('aria-valuenow', percent);
+              $('#progress-bar').css('width', percent+'%');
+            }
+          }, 500);
+        }
+        $(document).ready(function() {
+          get_data();
+        });
       } else { // just download the log.csv file
         dygraphs_data = '/log.csv';
         draw_graph();
@@ -200,8 +236,7 @@
 	);
         g.ready(function() {
           averages();
-          setInterval(function() { updateGraph() }, timer);
-          setInterval(function() { count_down() }, 1000);
+          update_countdown = setInterval(function() { count_down() }, 1000);
         });
       }
 
@@ -257,6 +292,7 @@
       function count_down() {
         if (cntdown <= 0) {
           cntdown = timer;
+          updateGraph();
         }
         cntdown = cntdown - 1000;
         $('#cntdown').text(cntdown/1000);
