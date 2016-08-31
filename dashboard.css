@@ -73,8 +73,17 @@ footer {
   color: #fff;
 }
 
-.progress {
+#progress {
   height: 5px;
+  padding:0px;
+  position:absolute;
+  width:100%;
+  top:50px;
+  left:0px;
+  z-index: 10;
+}
+#progress > div {
+  margin:0px;
 }
 
 input[type=range][orient=vertical] {
