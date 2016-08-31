@@ -49,6 +49,11 @@ if (COUCHDB) {
       success: function(data) {
         offset = data['rows'].length;
         docs = [];
+        start_time = moment(parseFloat(data['rows'][0]['id']), 's');
+
+        time_span = moment().diff(start_time.unix(), 'hours');
+        max_timemachine = Math.ceil(moment.duration(time_span, 's').asHours());
+        $('#timemachine').attr('max', max_timemachine);
         $.each(data['rows'], function(index, obj) {
           timestamp = parseFloat(obj['id']);
           if (moment(timestamp).isBetween(moment().subtract($('#timemachine').val(), 'hours').unix(), moment().unix(), null, '[]')) {
@@ -81,7 +86,7 @@ if (COUCHDB) {
         $('#progress-bar').attr('aria-valuenow', percent);
         $('#progress-bar').css('width', percent+'%');
       }
-    }, 500);
+    }, 200);
   }
   $(document).ready(function() {
     get_data();
