@@ -6,7 +6,22 @@ var offset = -1;
 var one_day = -1;
 var update_countdown;
 
+var legend_display = 'always';
+if ($(window).width() < 768) {
+  legend_display = 'onmouseover';
+}
+
+
 $('#cntdown').text(REFRESH_INTER);
+
+function count_down() {
+  if (cntdown <= 0) {
+    cntdown = timer;
+    updateGraph();
+  }
+  cntdown = cntdown - 1000;
+  $('#cntdown').text(cntdown/1000);
+}
 
 if (COUCHDB) {
   var data_checker;
@@ -29,6 +44,14 @@ if (COUCHDB) {
         one_day -= 1;
       }
     });
+  }
+
+  function sort_data(a,b) {
+    var keyA = a[0];
+    var keyB = b[0];
+    if(keyA < keyB) return -1;
+    if(keyA > keyB) return 1;
+    return 0;
   }
 
   $('#timemachine').mousemove(function() {
@@ -71,13 +94,7 @@ if (COUCHDB) {
     data_checker = setInterval(function() {
       if (dygraphs_data.length == one_day) {
         clearInterval(data_checker);
-        dygraphs_data.sort(function(a, b) {
-          var keyA = a[0];
-          var keyB = b[0];
-          if(keyA < keyB) return -1;
-          if(keyA > keyB) return 1;
-          return 0;
-        });
+        dygraphs_data.sort(sort_data);
         draw_graph();
         $('#time-slider').show();
         $('#progress').hide();
@@ -97,11 +114,6 @@ if (COUCHDB) {
   dygraphs_data = '/log.csv';
   draw_graph();
 }
-var legend_display = 'always';
-if ($(window).width() < 768) {
-  legend_display = 'onmouseover';
-}
-
 function formatDate(d, short=false) {
   if (short) {
     return moment.unix(d).format('H:mm');
@@ -240,7 +252,6 @@ function draw_graph() {
   });
 }
 
-
 function updateGraph() {
   x = g.xAxisRange()[0];
   if (COUCHDB) {
@@ -257,13 +268,7 @@ function updateGraph() {
           data_checker = setInterval(function() {
             if (dygraphs_data.length == (one_day + data['rows'].length)) {
               clearInterval(data_checker);
-              dygraphs_data.sort(function(a, b) {
-                var keyA = a[0];
-                var keyB = b[0];
-                if(keyA < keyB) return -1;
-                if(keyA > keyB) return 1;
-                return 0;
-              });
+              dygraphs_data.sort(sort_data);
               g.updateOptions({
                 file: dygraphs_data,
                 dateWindow: [
@@ -280,6 +285,7 @@ function updateGraph() {
           }, 500);
         } else {
           console.log('No new data for now');
+          $('#timemachine').prop('disabled', false);
         }
       }
     });
@@ -295,11 +301,3 @@ function updateGraph() {
   g.ready(averages);
 }
 
-function count_down() {
-  if (cntdown <= 0) {
-    cntdown = timer;
-    updateGraph();
-  }
-  cntdown = cntdown - 1000;
-  $('#cntdown').text(cntdown/1000);
-}
