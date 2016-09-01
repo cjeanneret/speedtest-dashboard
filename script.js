@@ -244,6 +244,7 @@ function draw_graph() {
 function updateGraph() {
   x = g.xAxisRange()[0];
   if (COUCHDB) {
+    $('#timemachine').prop('disabled', true);
     $.couch.db('bandwidth').allDocs({
       skip: offset,
       success: function(data) {
@@ -272,6 +273,7 @@ function updateGraph() {
               });
               offset += data['rows'].length;
               one_day += data['rows'].length;
+              $('#timemachine').prop('disabled', false);
             } else {
               console.log('Waiting for dataset');
             }
