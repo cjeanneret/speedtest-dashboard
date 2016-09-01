@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link rel="apple-touch-icon-precomposed" href="/images/speed2-152-246261.png">
@@ -27,13 +28,13 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/index.html">Speedtest History (refresh in: <span id="cntdown">60</span>s)</a>
+          <a class="navbar-brand" href="/index.html">Speedtest History (refresh in: <span id="cntdown"></span>s)</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li title="Download (average, max, min)" class="navbar-text"><span class="glyphicon glyphicon-download"></span> <span name="down_avg"></span></li>
-            <li title="Upload (average)" class="navbar-text"><span class="glyphicon glyphicon-upload"></span> <span name="up_avg"></span></li>
-            <li title="Latency (average)" class="navbar-text"><span class="glyphicon glyphicon-time"></span> <span name="lat_avg"></span></li>
+            <li class="navbar-text"><span class="glyphicon glyphicon-download"></span> <span name="down_avg"></span></li>
+            <li class="navbar-text"><span class="glyphicon glyphicon-upload"></span> <span name="up_avg"></span></li>
+            <li class="navbar-text"><span class="glyphicon glyphicon-time"></span> <span name="lat_avg"></span></li>
           </ul>
         </div>
       </div>
@@ -74,6 +75,10 @@
       var MAX_BW = 250; // max speed you can have
       var COUCHDB = true; // are you using couchdb? No? You really should :)
       var DEFAULT_SPAN = 12; // take the X last hours
+      var REFRESH_INTER = 60; // Refresh interval, in seconds
+      var SHOW_DOWN_MIN_MAX = false; // Show min/max values for download
+      var SHOW_UP_MIN_MAX = false; // Show min/max values for upload
+      var SHOW_LAT_MIN_MAX = false; // Show min/max values for latency
     </script>
     <script type="text/javascript" src="/script.js"></script>
   </body>

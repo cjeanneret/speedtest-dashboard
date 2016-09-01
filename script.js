@@ -1,10 +1,12 @@
 var dygraphs_data;
 var g;
 var timer = 1000*60*1;
-var cntdown = timer;
+var cntdown = 1000*REFRESH_INTER;
 var offset = -1;
 var one_day = -1;
 var update_countdown;
+
+$('#cntdown').text(REFRESH_INTER);
 
 if (COUCHDB) {
   var data_checker;
@@ -107,33 +109,71 @@ function formatDate(d, short=false) {
     return moment.unix(d).format('D MMM YYYY - H:mm:ss');
   }
 }
+function get_max_min(cur_max, cur_min, val) {
+    if (val > cur_max) {
+      cur_max = val;
+    }
+    if (cur_min < 0 && val > 0) {
+      cur_min = val;
+    }
+    if (val > 0 && val < cur_min) {
+      cur_min = val;
+    }
+    return [cur_max, cur_min];
+}
 function averages() {
   avg_up = 0;
   avg_down = 0;
   avg_lat = 0;
-  max_speed = 0;
-  min_speed = -1;
+  down_max_speed = 0;
+  down_min_speed = -1;
+  up_max_speed = 0;
+  up_min_speed = -1;
+  lat_max = 0;
+  lat_min = -1;
   for (var i=0; i<g.numRows(); i++) {
     up = parseFloat(g.getValue(i,2));
     down = parseFloat(g.getValue(i,3));
+    lat = parseFloat(g.getValue(i,1));
 
-    avg_lat  += parseFloat(g.getValue(i,1));
+    avg_lat  += lat;
     avg_up   += up;
     avg_down += down;
 
-    if (down > max_speed) {
-      max_speed = down;
-    }
-    if (min_speed < 0 && down > 0) {
-      min_speed = down;
-    }
-    if (down > 0 && down < min_speed) {
-      max_speed = down;
-    }
+    vals = get_max_min(down_min_speed,down_max_speed, down);
+    down_max_speed = vals[0];
+    down_min_speed = vals[1];
+
+    vals = get_max_min(up_min_speed,up_max_speed, up);
+    up_max_speed = vals[0];
+    up_min_speed = vals[1];
+
+    vals = get_max_min(lat_max,lat_min, lat);
+    lat_max = vals[0];
+    lat_min = vals[1];
+
   }
-  $('span[name="down_avg"]').text((avg_down/g.numRows()).toFixed(2)+'Mbit/s ('+max_speed+'/'+min_speed+'Mbit/s)');
-  $('span[name="up_avg"]').text((avg_up/g.numRows()).toFixed(2)   +'Mbit/s');
-  $('span[name="lat_avg"]').text((avg_lat/g.numRows()).toFixed(2)  +'ms');
+  if (SHOW_DOWN_MIN_MAX) {
+    $('span[name="down_avg"]').text((avg_down/g.numRows()).toFixed(2)+'Mbit/s ('+down_max_speed+'/'+down_min_speed+'Mbit/s)');
+    $('span[name="down_avg"]').attr('title', 'Download (average, max, min)');
+  } else {
+    $('span[name="down_avg"]').text((avg_down/g.numRows()).toFixed(2)+'Mbit/s');
+    $('span[name="down_avg"]').attr('title', 'Download (max: '+down_max_speed+', min: '+down_min_speed+'Mbit/s)');
+  }
+  if (SHOW_UP_MIN_MAX) {
+    $('span[name="up_avg"]').text((avg_up/g.numRows()).toFixed(2)+'Mbit/s ('+up_max_speed+'/'+up_min_speed+'Mbit/s)');
+    $('span[name="up_avg"]').attr('title', 'Upload (average, max, min)');
+  } else {
+    $('span[name="up_avg"]').text((avg_up/g.numRows()).toFixed(2)   +'Mbit/s');
+    $('span[name="up_avg"]').attr('title', 'Upload (max: '+up_max_speed+' min: '+up_min_speed+'Mbit/s)');
+  }
+  if (SHOW_LAT_MIN_MAX) {
+    $('span[name="lat_avg"]').text((avg_lat/g.numRows()).toFixed(2)  +'ms ('+lat_min+'/'+lat_max+'s)');
+    $('span[name="lat_avg"]').attr('title', 'Latency (average, min, max)');
+  } else {
+    $('span[name="lat_avg"]').text((avg_lat/g.numRows()).toFixed(2)  +'ms');
+    $('span[name="lat_avg"]').attr('title', 'Latency (min: '+lat_min+' max: '+lat_max+'s)');
+  }
 }
 
 function draw_graph() {
