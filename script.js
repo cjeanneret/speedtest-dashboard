@@ -111,14 +111,29 @@ function averages() {
   avg_up = 0;
   avg_down = 0;
   avg_lat = 0;
+  max_speed = 0;
+  min_speed = -1;
   for (var i=0; i<g.numRows(); i++) {
-    avg_lat  += parseInt(g.getValue(i,1));
-    avg_up   += parseInt(g.getValue(i,2));
-    avg_down += parseInt(g.getValue(i,3));
+    up = parseFloat(g.getValue(i,2));
+    down = parseFloat(g.getValue(i,3));
+
+    avg_lat  += parseFloat(g.getValue(i,1));
+    avg_up   += up;
+    avg_down += down;
+
+    if (down > max_speed) {
+      max_speed = down;
+    }
+    if (min_speed < 0 && down > 0) {
+      min_speed = down;
+    }
+    if (down > 0 && down < min_speed) {
+      max_speed = down;
+    }
   }
-  $('li[name="down_avg"]').text('Download: '+(avg_down/g.numRows()).toFixed(2) +'Mbit/s');
-  $('li[name="up_avg"]').text('Upload: '+    (avg_up/g.numRows()).toFixed(2)   +'Mbit/s');
-  $('li[name="lat_avg"]').text('Latency: '+  (avg_lat/g.numRows()).toFixed(2)  +'ms');
+  $('span[name="down_avg"]').text((avg_down/g.numRows()).toFixed(2)+'Mbit/s ('+max_speed+'/'+min_speed+'Mbit/s)');
+  $('span[name="up_avg"]').text((avg_up/g.numRows()).toFixed(2)   +'Mbit/s');
+  $('span[name="lat_avg"]').text((avg_lat/g.numRows()).toFixed(2)  +'ms');
 }
 
 function draw_graph() {

@@ -29,9 +29,9 @@ body {
 #dygraph {
   position: absolute;
   left: 50px;
-  right: 10px;
-  top: 80px;
-  bottom: 20px;
+  right: 20px;
+  top: 60px;
+  bottom: 5%;
   text-align:center;
 }
 .dygraph-legend {
@@ -48,7 +48,7 @@ footer {
   position:absolute;
   width:99%;
   text-align:center;
-  font-size:8px;
+  font-size:10px;
   padding-bottom:5px;
 }
 @media (min-width: 768px) {
@@ -122,4 +122,11 @@ input[type=range][orient=vertical] {
 @keyframes spin {
   from { transform: scale(1) rotate(0deg);}
   to { transform: scale(1) rotate(360deg);}
+}
+
+.navbar-brand {
+  background-image: url(/images/speed2-32-246261.png);
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  padding-left:45px;
 }
